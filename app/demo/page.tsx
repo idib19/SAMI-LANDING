@@ -1,35 +1,38 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { MessageSquare, Send, Loader2 } from "lucide-react";
+import { MessageSquare, Send, Loader2, CheckCircle } from "lucide-react";
 
 export default function Demo() {
+  const router = useRouter();
   const [phone, setPhone] = useState('');
-  const [message, setMessage] = useState('');
-  const [isSending, setIsSending] = useState(false);
-  const [isSent, setIsSent] = useState(false);
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success'>('idle');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSending(true);
+    setStatus('loading');
     
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    setIsSending(false);
-    setIsSent(true);
-    
-    // Reset form after 3 seconds
-    setTimeout(() => {
-      setIsSent(false);
-      setPhone('');
-      setMessage('');
-    }, 3000);
+    try {
+      // API call will go here
+      // Example: await sendMessage(phone);
+      await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate API call
+      
+      setStatus('success');
+      
+      // Show success state briefly before redirecting
+      setTimeout(() => {
+        router.push('/'); // Redirect to home page
+      }, 1500);
+      
+    } catch (error) {
+      setStatus('idle');
+      // Handle error here
+    }
   };
 
   return (
@@ -56,24 +59,11 @@ export default function Demo() {
                     onChange={(e) => setPhone(e.target.value)}
                     required
                     className="flex-1"
+                    disabled={status !== 'idle'}
                   />
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  We'll send a test message to this number
-                </p>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="message">Custom Message (Optional)</Label>
-                <Textarea
-                  id="message"
-                  placeholder="Enter your message or let our AI generate one for you"
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  className="min-h-[100px]"
-                />
-                <p className="text-sm text-muted-foreground">
-                  Leave blank to see our AI in action with a personalized message
+                  We'll send an AI-generated message to this number
                 </p>
               </div>
 
@@ -81,16 +71,16 @@ export default function Demo() {
                 <Button 
                   type="submit" 
                   className="flex-1"
-                  disabled={isSending || isSent}
+                  disabled={status !== 'idle'}
                 >
-                  {isSending ? (
+                  {status === 'loading' ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       Sending...
                     </>
-                  ) : isSent ? (
+                  ) : status === 'success' ? (
                     <>
-                      <MessageSquare className="mr-2 h-4 w-4" />
+                      <CheckCircle className="mr-2 h-4 w-4 text-green-500 animate-bounce" />
                       Message Sent!
                     </>
                   ) : (
@@ -119,7 +109,7 @@ export default function Demo() {
                     2
                   </div>
                   <p className="text-muted-foreground">
-                    Our AI will generate a personalized message or use your custom text
+                    Our AI will generate a personalized message just for you
                   </p>
                 </div>
                 <div className="flex items-start gap-3">
