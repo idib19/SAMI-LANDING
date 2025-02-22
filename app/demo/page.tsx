@@ -10,6 +10,8 @@ import { Label } from "@/components/ui/label";
 import { MessageSquare, Send, Loader2, CheckCircle } from "lucide-react";
 import { Toaster } from 'sonner';
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
 export default function Demo() {
   const router = useRouter();
   const [phone, setPhone] = useState('');
@@ -20,7 +22,7 @@ export default function Demo() {
     setStatus('loading');
     
     try {
-      const response = await fetch('https://sms-ai-agent-for-repair-store-production.up.railway.app/sms/demo', {
+      const response = await fetch(`${API_URL}/sms/demo`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
